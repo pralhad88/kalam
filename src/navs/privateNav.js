@@ -26,7 +26,7 @@ export const publicNavs = [
     }, 
     {
         url: '/tasks',
-        name: 'My Tasks',
+        name: 'Mere Kam',
         icon: <ExtensionIcon />
     },
     {
@@ -36,12 +36,12 @@ export const publicNavs = [
     },
     {
         url: '/report/all',
-        name: 'Record distribution',
+        name: 'Ye kam kon karenga.',
         icon: <ExtensionIcon />
     },
     {
         url: '/assign/user',
-        name: 'Assign Users',
+        name: 'Kam karlo Yar.',
         icon: <ExtensionIcon />
     },
     // {
