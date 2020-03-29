@@ -5,8 +5,6 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 
 import { withSnackbar } from 'notistack';
-import { EventEmitter } from './events';
-import { ro } from 'date-fns/locale';
 
 const baseUrl = process.env.API_URL;
 const animatedComponents = makeAnimated();
@@ -52,11 +50,9 @@ export class OwnerSelect extends React.Component {
     }
     return <Select
         className={"filterSelectStage"}
-        // defaultValue={selectedValue}
         value={selectedValue}
         onChange={this.handleChange}
         options={allUserOptions}
-        // placeholder={"Select "+this.props.filter.name+" ..."}
         isClearable={false}
         components={animatedComponents}
         closeMenuOnSelect={true}

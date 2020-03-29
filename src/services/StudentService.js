@@ -1,8 +1,6 @@
 import React from 'react';
 import { allStages, feedbackableStages, feedbackableStagesData, permissions } from '../config';
 import Moment from 'react-moment';
-import Select from 'react-select';
-import makeAnimated from 'react-select/animated';
 import StageSelect from '../components/StageSelect';
 import OwnerSelect from '../components/OwnerSelect';
 import StatusSelect from '../components/StatusSelect'
@@ -11,8 +9,6 @@ import StageTransitions from '../components/StageTransitions';
 import StageTransitionsStudentStatus from '../components/StageTransitionsStudentStatus';
 
 const _ = require('underscore');
-const animatedComponents = makeAnimated();
-
 const allStagesOptions = Object.keys(allStages).map(x => { return allStages[x] });
 
 const ColumnTransitions = {

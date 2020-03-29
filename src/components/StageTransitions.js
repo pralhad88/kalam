@@ -8,16 +8,14 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import Box from '@material-ui/core/Box';
-import MUIDataTable from "mui-datatables";
 import Typography from '@material-ui/core/Typography';
 import { theme } from '../theme/theme';
 import { changeFetching } from '../store/actions/auth';
 import { withRouter } from 'react-router-dom';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { MuiThemeProvider } from '@material-ui/core/styles';
 
-import GlobalService from '../services/GlobalService';
-import StudentService from '../services/StudentService';
 import DetailsIcon from '@material-ui/icons/Details';
+import MainLayout from './MainLayout';
 // API USage : https://blog.logrocket.com/patterns-for-data-fetching-in-react-981ced7e5c56/
 const baseURL = process.env.API_URL;
 
@@ -70,10 +68,10 @@ export class Transition extends React.Component {
   }
 
   transitionsChangeEvent = () => {
-    this.fetchtransition();
+    this.fetchTransition();
   }
 
-  async fetchtransition() {
+  async fetchTransition() {
     try {
       this.transitionURL = `${baseURL}students/transitionsWithFeedback/${this.props.studentId}`;
       this.props.fetchingStart()
@@ -95,7 +93,7 @@ export class Transition extends React.Component {
   };
 
   handleOpen = () => {
-    this.fetchtransition();
+    this.fetchTransition();
     this.setState({
       modalOpen: true
     })
@@ -103,7 +101,7 @@ export class Transition extends React.Component {
 
 
   render = () => {
-    const { classes, studentName } = this.props;
+    const { classes, studentName,  dataType } = this.props;
     const modalStyle = getModalStyle()
     return !this.state.modalOpen ? <div>
       <Button color="primary" align="right" onClick={this.handleOpen}>
@@ -122,25 +120,9 @@ export class Transition extends React.Component {
                 <CancelIcon />
               </Box>
             </Box>
-            <MUIDataTable
-              columns={StudentService.columns[this.props.dataType]}
+            <MainLayout 
               data={this.state.data}
-              icons={GlobalService.tableIcons}
-              options={{
-                headerStyle: {
-                  color: theme.palette.primary.main
-                },
-                exportButton: true,
-                pageSize: 100,
-                showTitle: false,
-                selectableRows: 'none',
-                toolbar: false,
-                filtering: true,
-                filter: true,
-                filterType: 'doprdown',
-                responsive: 'stacked',
-              }}
-
+              dataType={dataType}
             />
           </MuiThemeProvider>
         </Box>

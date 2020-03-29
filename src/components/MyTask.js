@@ -4,87 +4,66 @@
 import 'date-fns';
 import React from 'react';
 import { connect } from 'react-redux';
-
-import MUIDataTable from "mui-datatables";
-import { withStyles, MuiThemeProvider } from '@material-ui/core/styles';
-
 import axios from 'axios';
-import Box from '@material-ui/core/Box';
-
-import { theme } from '../theme/theme';
-
-import { changeFetching } from '../store/actions/auth';
-
-import GlobalService from '../services/GlobalService';
+import { changeFetching, setupUsers } from '../store/actions/auth';
 import StudentService from '../services/StudentService';
+import MainLayout from './MainLayout';
 
 
 // API USage : https://blog.logrocket.com/patterns-for-data-fetching-in-react-981ced7e5c56/
 const baseURL = process.env.API_URL;
 
-const styles = theme => ({
-  clear: {
-    clear: 'both'
-  }
-})
-
 export class MyTaskReport extends React.Component {
 
   constructor(props) {
 
-    super(props);
-    this.onwerDetailsURL = baseURL + 'students/my_tasks';
-    
+    super(props);    
     this.state = {
       data: [],
     }
   }
 
-  dataConvert = (data) => {
-    const newData = []
-    for (let i=0; i< data.length; i++) {
-      data[i].name = data[i].student.name;
-      delete data[i].student;
-      newData.push(data[i])      
+  dataSetup = (data) => {
+    for (let i = 0; i < data.length; i++) {
+      data[i] = StudentService.dConvert(data[i])
     }
-    this.setState({
-      data: newData,
-    })
+    const newData = data.map(v => ({ ...v, loggedInUser: this.props.loggedInUser.email.split('@')[0] }))
+    this.setState({ 'data': newData }, function () {
+      this.props.fetchingFinish()
+    });
   }
 
   render = () => {
-    return <Box>
-      <MuiThemeProvider theme={theme}>
-        <MUIDataTable
-          columns={StudentService.columnMyReports}
-          data={this.state.data}
-          icons={GlobalService.tableIcons}
-          options={{
-            headerStyle: {
-              color: theme.palette.primary.main
-            },
-            exportButton: true,
-            pageSize: 100,
-            showTitle: false,
-            selectableRows: 'none',
-            toolbar: false,
-            filtering: true,
-            filter: true,
-            filterType: 'doprdown',
-            responsive: 'stacked',
-          }}
-        />
-      </MuiThemeProvider>
-    </Box>
+    return(
+      <MainLayout
+        data={this.state.data}
+        dataType={'softwareCourse'} 
+      />
+    )
   }
 
   componentDidMount() {
-    this.fetchonwerReport();
+    this.fetchOwnerReport();
+    this.fetchUsers();
   }
 
-  async fetchonwerReport() {
+  async fetchUsers() {
     try {
       this.props.fetchingStart()
+      this.usersURL = baseURL + 'users/getall';
+      const response = await axios.get(this.usersURL, {});
+      this.props.usersSetup(response.data.data);
+      this.props.fetchingFinish()
+    } catch (e) {
+      console.log(e)
+      this.props.fetchingFinish()
+    }
+  }
+
+  async fetchOwnerReport() {
+    try {
+      this.props.fetchingStart()
+      this.onwerDetailsURL = baseURL + 'students/my_tasks'
       // response = ngFetch(this.studentsURL, 'GET', {
       //   params: {
       //     dataType: this.dataType,
@@ -98,7 +77,7 @@ export class MyTaskReport extends React.Component {
           user: user
         }
       });
-      this.dataConvert(response.data.data);
+      this.dataSetup(response.data.data)
       this.props.fetchingFinish();
     } catch (e) {
       console.log(e)
@@ -113,7 +92,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   fetchingStart: () => dispatch(changeFetching(true)),
-  fetchingFinish: () => dispatch(changeFetching(false))
+  fetchingFinish: () => dispatch(changeFetching(false)),
+  usersSetup: (users) => dispatch(setupUsers(users))
 });
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(MyTaskReport));
+export default connect(mapStateToProps, mapDispatchToProps)(MyTaskReport);

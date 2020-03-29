@@ -1,36 +1,32 @@
 import 'date-fns';
 import React from 'react';
-// import { allStages} from '../config';
+
 import { connect } from 'react-redux';
 import DateFnsUtils from '@date-io/date-fns';
-import MUIDataTable from "mui-datatables";
 import { withStyles, MuiThemeProvider } from '@material-ui/core/styles';
 import Select from 'react-select';
 
 import axios from 'axios';
 import Box from '@material-ui/core/Box';
-import makeAnimated from 'react-select/animated';
 
 import { theme } from '../theme/theme';
 import { changeFetching, setupUsers } from '../store/actions/auth';
 import { withRouter } from 'react-router-dom';
-import GlobalService from '../services/GlobalService';
 import StudentService from '../services/StudentService';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import { allStages } from '../config';
+import MainLayout from './MainLayout';
 
-const animatedComponents = makeAnimated();
 // API USage : https://blog.logrocket.com/patterns-for-data-fetching-in-react-981ced7e5c56/
 const baseURL = process.env.API_URL;
 const allStagesOptions = Object.keys(allStages).map(x => { return { value: x, label: allStages[x] } });
-allStagesOptions.push({ value: 'default', label: 'Back To All Students Details'})
+allStagesOptions.push({ value: 'default', label: 'Back To All Students Details' })
 
 const styles = theme => ({
   clear: {
     clear: 'both'
   }
 })
-
 
 
 export class AdmissionsDash extends React.Component {
@@ -44,11 +40,10 @@ export class AdmissionsDash extends React.Component {
     } else {
       this.dataType = 'softwareCourse'
     }
-    this.studentsURL = baseURL + 'students';
-    this.usersURL = baseURL + 'users/getall';
+
     this.stage = null,
-    this.value = null,
-    this.loggedInUser = this.props.loggedInUser;
+      this.value = null,
+      this.loggedInUser = this.props.loggedInUser;
 
     this.state = {
       data: [],
@@ -57,19 +52,6 @@ export class AdmissionsDash extends React.Component {
   }
 
   stageChangeEvent = (iData) => {
-    // const rowIds = this.state.data.map(x => x.id)
-    // const rowIndex = rowIds.indexOf(iData.rowData.rowId);
-    // this.setState(({data}) => ({
-    //   data: [
-    //     ...data.slice(0,rowIndex),
-    //     {
-    //       ...data[rowIndex],
-    //       stage: iData.selectedValue.value,
-    //       stageTitle: iData.selectedValue.label
-    //     },
-    //     ...data.slice(rowIndex+1)
-    //   ]
-    // }))
     let dataElem = this.state.data[iData.rowId];
     // dataElem.stageTitle = iData.selectedValue.label;
     dataElem.stage = iData.selectedValue.value;
@@ -90,7 +72,7 @@ export class AdmissionsDash extends React.Component {
 
   changeStudentStage = option => {
     this.value = { value: option.value, label: allStages[option.value] }
-    if(option.value === "default") {
+    if (option.value === "default") {
       this.stage = null;
       this.dataType = 'softwareCourse';
       this.fetchStudents();
@@ -124,7 +106,7 @@ export class AdmissionsDash extends React.Component {
 
   render = () => {
     const { classes } = this.props;
-    
+
     const options = <Box>
       <Select
         className={"filterSelectGlobal"}
@@ -134,7 +116,6 @@ export class AdmissionsDash extends React.Component {
         { value: "softwareCourse", label: "Other Data" }]}
         placeholder={"Select Data Type"}
         isClearable={false}
-        components={animatedComponents}
         closeMenuOnSelect={true}
       />
       <Select
@@ -144,7 +125,6 @@ export class AdmissionsDash extends React.Component {
         options={allStagesOptions}
         placeholder={"Get Student Details By Stage"}
         isClearable={false}
-        components={animatedComponents}
         closeMenuOnSelect={true}
       />
 
@@ -180,31 +160,14 @@ export class AdmissionsDash extends React.Component {
     if (!this.state.data.length) {
       return options;
     }
-    
+
     return <Box>
       <MuiThemeProvider theme={theme}>
         {options}
         <div className={classes.clear}></div>
-        <MUIDataTable
-          columns={StudentService.columns[this.dataType]}
+        <MainLayout
           data={this.state.sData ? this.state.sData : this.state.data}
-          icons={GlobalService.tableIcons}
-          options={
-            {
-              headerStyle: {
-                color: theme.palette.primary.main
-              },
-              exportButton: true,
-              pageSize: 100,
-              showTitle: false,
-              selectableRows: 'none',
-              toolbar: false,
-              filtering: true,
-              filter: true,
-              filterType: 'doprdown',
-              responsive: 'stacked',
-            }
-          }
+          dataType={this.dataType}
         />
       </MuiThemeProvider>
     </Box>
@@ -219,6 +182,7 @@ export class AdmissionsDash extends React.Component {
   async fetchUsers() {
     try {
       this.props.fetchingStart()
+      this.usersURL = baseURL + 'users/getall';
       const response = await axios.get(this.usersURL, {});
       this.props.usersSetup(response.data.data);
       this.props.fetchingFinish()
@@ -239,6 +203,7 @@ export class AdmissionsDash extends React.Component {
       //   }
       // }, true);
 
+      this.studentsURL = baseURL + 'students';  
       const response = await axios.get(this.studentsURL, {
         params: {
           dataType: this.dataType,
